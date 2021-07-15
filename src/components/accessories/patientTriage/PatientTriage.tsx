@@ -38,7 +38,7 @@ const PatientTriage: FunctionComponent<TProps> = ({
   const { t } = useTranslation();
   const infoBoxRef = useRef<HTMLDivElement>(null);
   const [shouldResetForm, setShouldResetForm] = useState(false);
-  const [shouldUpdateTable, setShouldUpdateTable] = useState(false);
+  const [shouldUpdateTable, setShouldUpdateTable] = useState(true);
   const [activityTransitionState, setActivityTransitionState] =
     useState<TActivityTransitionState>("IDLE");
 

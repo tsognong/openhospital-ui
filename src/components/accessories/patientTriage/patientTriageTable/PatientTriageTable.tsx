@@ -14,7 +14,6 @@ interface IOwnProps {
 const PatientTriageTable: FunctionComponent<IOwnProps> = ({
   shouldUpdateTable,
 }) => {
-  const [, setUpdate] = useState(false);
   const { t } = useTranslation();
 
   const label = {
@@ -43,7 +42,7 @@ const PatientTriageTable: FunctionComponent<IOwnProps> = ({
     (state) => state.patients.selectedPatient.data?.code
   );
   useEffect(() => {
-    dispatch(examinationsByPatientId(patientCode));
+    if (shouldUpdateTable) dispatch(examinationsByPatientId(patientCode));
   }, [dispatch, patientCode, shouldUpdateTable]);
 
   const formatDataToDisplay = (data: PatientExaminationDTO[]) => {
@@ -70,10 +69,6 @@ const PatientTriageTable: FunctionComponent<IOwnProps> = ({
   const onDelete = () => {
     console.log("delete");
   };
-
-  useEffect(() => {
-    setUpdate(shouldUpdateTable);
-  }, [shouldUpdateTable]);
 
   return (
     <>
