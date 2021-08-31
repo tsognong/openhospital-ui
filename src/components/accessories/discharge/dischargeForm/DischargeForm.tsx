@@ -5,8 +5,9 @@ import moment from "moment";
 import React, { FC, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { object, string, number } from "yup";
+import { object, string } from "yup";
 import warningIcon from "../../../../assets/warning-icon.png";
+import { AdmissionTypeDTO, DiseaseDTO } from "../../../../generated";
 import {
   formatAllFieldValues,
   getFromFields,
@@ -58,16 +59,15 @@ const DischargeForm: FC<DischargeProps> = ({
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      console.log("Handling form");
       const formattedValues = formatAllFieldValues(fields, values);
       formattedValues.diseaseOut1 = diagnosisOutList?.find(
-        (item) => item.code == formattedValues.diseaseOut1
+        (item) => item.code === formattedValues.diseaseOut1
       );
       formattedValues.diseaseOut2 = diagnosisOutList?.find(
-        (item) => item.code == formattedValues.diseaseOut2
+        (item) => item.code === formattedValues.diseaseOut2
       );
       formattedValues.diseaseOut3 = diagnosisOutList?.find(
-        (item) => item.code == formattedValues.diseaseOut3
+        (item) => item.code === formattedValues.diseaseOut3
       );
       formattedValues.disType = dischargeTypes?.find(
         (item) => item.code === formattedValues.disType
@@ -119,21 +119,6 @@ const DischargeForm: FC<DischargeProps> = ({
     dispatch(getDischargeTypes());
   }, [dispatch, getDischargeTypes]);
 
-  const diagnosisOptionsSelector = (state: IState) => {
-    if (state.diseases.diseasesIpdOut.data) {
-      return state.diseases.diseasesIpdOut.data.map((diseaseOut) => {
-        return {
-          value: diseaseOut.code?.toString() ?? "",
-          label: diseaseOut.description ?? "",
-        };
-      });
-    } else return [];
-  };
-
-  const diagnosisOptions = useSelector((state: IState) =>
-    diagnosisOptionsSelector(state)
-  );
-
   const diagnosisStatus = useSelector(
     (state: IState) => state.diseases.diseasesIpdOut.status
   );
@@ -141,24 +126,24 @@ const DischargeForm: FC<DischargeProps> = ({
     (state: IState) => state.dischargeTypes.allDischargeTypes.status
   );
 
-  const typesOptionsSelector = (state: IState) => {
-    if (state.dischargeTypes.allDischargeTypes.data) {
-      return state.dischargeTypes.allDischargeTypes.data.map((type) => {
+  const toOptions = (data: (AdmissionTypeDTO | DiseaseDTO)[] | undefined) => {
+    if (data) {
+      return data.map((type) => {
         return {
-          value: type.code ?? "",
+          value: type.code?.toString() ?? "",
           label: type.description ?? "",
         };
       });
     } else return [];
   };
-  const typeOptions = useSelector((state: IState) =>
-    typesOptionsSelector(state)
-  );
 
   useEffect(() => {
     formik.setFieldValue(
       "bedDays",
-      moment(new Date(parseInt(currentAdmission?.admDate ?? ""))).days()
+      moment(new Date()).diff(
+        moment(new Date(parseInt(currentAdmission?.admDate ?? ""))),
+        "days"
+      )
     );
   }, [currentAdmission, resetFormCallback]);
 
@@ -210,7 +195,7 @@ const DischargeForm: FC<DischargeProps> = ({
                 isValid={isValid("disType")}
                 errorText={getErrorText("disType")}
                 onBlur={onBlurCallback("disType")}
-                options={typeOptions}
+                options={toOptions(dischargeTypes)}
                 loading={typeStatus === "LOADING"}
               />
             </div>
@@ -224,7 +209,7 @@ const DischargeForm: FC<DischargeProps> = ({
                 isValid={isValid("diseaseOut1")}
                 errorText={getErrorText("diseaseOut1")}
                 onBlur={onBlurCallback("diseaseOut1")}
-                options={diagnosisOptions}
+                options={toOptions(diagnosisOutList)}
                 loading={diagnosisStatus === "LOADING"}
               />
             </div>
@@ -236,7 +221,7 @@ const DischargeForm: FC<DischargeProps> = ({
                 isValid={isValid("diseaseOut2")}
                 errorText={getErrorText("diseaseOut2")}
                 onBlur={onBlurCallback("diseaseOut2")}
-                options={diagnosisOptions}
+                options={toOptions(diagnosisOutList)}
                 loading={diagnosisStatus === "LOADING"}
               />
             </div>
@@ -248,7 +233,7 @@ const DischargeForm: FC<DischargeProps> = ({
                 isValid={isValid("diseaseOut3")}
                 errorText={getErrorText("diseaseOut3")}
                 onBlur={onBlurCallback("diseaseOut3")}
-                options={diagnosisOptions}
+                options={toOptions(diagnosisOutList)}
                 loading={diagnosisStatus === "LOADING"}
               />
             </div>
