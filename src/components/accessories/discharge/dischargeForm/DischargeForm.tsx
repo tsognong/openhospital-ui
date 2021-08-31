@@ -160,7 +160,7 @@ const DischargeForm: FC<DischargeProps> = ({
       "bedDays",
       moment(new Date(parseInt(currentAdmission?.admDate ?? ""))).days()
     );
-  }, [currentAdmission]);
+  }, [currentAdmission, resetFormCallback]);
 
   useEffect(() => {
     if (shouldResetForm) {
