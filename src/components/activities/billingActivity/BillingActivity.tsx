@@ -1,10 +1,4 @@
-import {
-  Assignment,
-  Equalizer,
-  LocalHotel,
-  Payment,
-  Receipt,
-} from "@material-ui/icons";
+import { Assignment, Equalizer, Payment } from "@material-ui/icons";
 import classNames from "classnames";
 import React, { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,8 +27,7 @@ import {
   FilterBillsInitialFields,
   paymentsFilterInitialFields,
 } from "./consts";
-import { currencyFormat } from "../../../libraries/formatUtils/currencyFormatting";
-import SkeletonLoader from "../../accessories/skeletonLoader/SkeletonLoader";
+import { BillsRecap } from "../../accessories/billsRecap/BillsRecap";
 
 const BillingActivity: FC = () => {
   const { t } = useTranslation();
@@ -59,7 +52,7 @@ const BillingActivity: FC = () => {
       content: (
         <ManageBillingActivityContent
           title="Dashboard"
-          content={<SkeletonLoader />}
+          content={<BillsRecap />}
         />
       ),
     },
