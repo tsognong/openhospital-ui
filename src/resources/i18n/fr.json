@@ -353,7 +353,8 @@
     "other": "Autre",
     "itemalreadypresent": "Article déjà présent dans la liste.",
     "quantitynotallowed": "Cette quantité n'est pas autorisée.",
-    "paid": "Payé"
+    "paid": "Payé",
+    "paymentrecap": "Recapulatif Paiement"
   },
   "button": {
     "save": "Enregistrer",

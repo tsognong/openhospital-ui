@@ -44,8 +44,6 @@ const PatientNewBill: FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const [openPayment, setOpenPayment] = useState(false);
-
   const {
     fullBill,
     bill,
@@ -126,10 +124,10 @@ const PatientNewBill: FC = () => {
         <div className="patientNewBill_main">
           {billItems.length != 0 && (
             <div className="patientNewBill_payment">
-              <Accordion expanded={openPayment}>
-                <AccordionSummary onClick={() => setOpenPayment(!openPayment)}>
+              <Accordion expanded={true}>
+                <AccordionSummary>
                   <FilterList fontSize="small" />
-                  <h5>{t("bill.payment")}</h5>
+                  <h5>{t("bill.paymentrecap")}</h5>
                 </AccordionSummary>
                 <AccordionDetails>
                   <ItemPayment
