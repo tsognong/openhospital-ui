@@ -107,7 +107,6 @@ const PatientNewBill: FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log(status);
     if (status === "FAIL") {
       scrollToElement(infoBoxRef.current);
     }
