@@ -64,6 +64,10 @@ export default produce(
       case GET_LAB_SUCCESS: {
         draft.labsByPatientId.status = "SUCCESS";
         draft.labsByPatientId.data = action.payload;
+        let data = draft.labsByPatientId.data;
+        draft.labsByPatientId.data = draft.labsByPatientId.data!.filter(
+          (e, index) => index == data?.findIndex((item) => item.code == e.code)
+        );
         delete draft.labsByPatientId.error;
         break;
       }
