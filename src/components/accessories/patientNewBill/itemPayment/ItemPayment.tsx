@@ -24,17 +24,18 @@ const ItemPayment: FC<IOwnProps> = ({
   const { t } = useTranslation();
   return (
     <div className="payment">
+      <h2>{t("bill.paymentrecap")}</h2>
       <div className="two-row">
-        <span>Total:</span>
+        <span>{t("bill.total")}:</span>
         <span>{currencyFormat(billTotal)}</span>
       </div>
       <div className="two-row">
-        <span>Paid:</span>
+        <span>{t("bill.paid")}: </span>
         <span>{currencyFormat(paymentTotal)}</span>
       </div>
       <div className="xs-divider"></div>
       <div className="two-row">
-        <span>To be paid:</span>
+        <span>{t("bill.balance")}:</span>
         <span>{currencyFormat(billTotal - paymentTotal)}</span>
       </div>
       <div className="payment__buttons">

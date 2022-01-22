@@ -126,20 +126,12 @@ const PatientNewBill: FC = () => {
         <div className="patientNewBill_main">
           {billItems.length != 0 && (
             <div className="patientNewBill_payment">
-              <Accordion expanded={openPayment}>
-                <AccordionSummary onClick={() => setOpenPayment(!openPayment)}>
-                  <FilterList fontSize="small" />
-                  <h5>{t("bill.payment")}</h5>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <ItemPayment
-                    saveBill={saveBill}
-                    handlePaymentDialog={handlePaymentDialog}
-                    billTotal={billTotal}
-                    paymentTotal={paymentTotal}
-                  />
-                </AccordionDetails>
-              </Accordion>
+              <ItemPayment
+                saveBill={saveBill}
+                handlePaymentDialog={handlePaymentDialog}
+                billTotal={billTotal}
+                paymentTotal={paymentTotal}
+              />
             </div>
           )}
           <div className="patientNewBill_items">

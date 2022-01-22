@@ -344,7 +344,9 @@
     "other": "Other",
     "itemalreadypresent": "Item already present in the list.",
     "quantitynotallowed": "This quantity is not allowed.",
-    "paid": "Paid"
+    "paid": "Paid",
+    "paymentrecap": "Payment Recap",
+    "total": "Total"
   },
   "button": {
     "save": "Save",
