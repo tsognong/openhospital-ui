@@ -4,9 +4,18 @@ interface IOwnProps {
   profilePicture?: any;
   shouldResetForm: boolean;
   resetFormCallback: () => void;
+  mode: "create" | "edit";
 }
 
+export type TAgeFieldName = "age" | "agetype" | "birthDate";
+
 export type TProps = IForm<TPatientDataFormFieldName, PatientDTO> & IOwnProps;
+
+export type TAgeType = {
+  age?: number;
+  agetype?: string;
+  birthDate?: string;
+};
 
 export type TPatientDataFormFieldName =
   | "firstName"
@@ -19,9 +28,9 @@ export type TPatientDataFormFieldName =
   | "city"
   | "telephone"
   | "note"
-  | "mother_name"
+  | "motherName"
   | "mother"
-  | "father_name"
+  | "fatherName"
   | "father"
   | "bloodType"
   | "hasInsurance"

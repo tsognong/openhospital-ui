@@ -1,8 +1,40 @@
 import XHRAdapter from "@pollyjs/adapter-xhr";
 import { Polly } from "@pollyjs/core";
 import { BASE_PATH } from "../generated/runtime";
-import patientDTO from "./fixtures/patientDTO";
-import patientExaminationDTO from "./fixtures/patientExaminationDTO";
+import { admissionRoutes } from "./routes/admissions";
+import { admissionTypesRoutes } from "./routes/admissionTypes";
+import { ageTypeRoutes } from "./routes/ageTypes";
+import { authRoutes } from "./routes/auth";
+import { billRoutes } from "./routes/bill";
+import { deliveryResultTypeRoutes } from "./routes/deliveryResultType";
+import { deliveryTypesRoutes } from "./routes/deliveryTypes";
+import { dischargeTypesRoutes } from "./routes/dischargeTypes";
+import { diseasesRoutes } from "./routes/diseases";
+import { diseaseTypeRoutes } from "./routes/diseaseTypes";
+import { examRoutes } from "./routes/exam";
+import { examinationsRoutes } from "./routes/examinations";
+import { examRowRoutes } from "./routes/examRow";
+import { examTypesRoutes } from "./routes/examTypes";
+import { hospitalRoutes } from "./routes/hospital";
+import { labRoutes } from "./routes/lab";
+import { labExamRequestRoutes } from "./routes/labExamRequest";
+import { medicalRoutes } from "./routes/medicals";
+import { medicalTypesRoutes } from "./routes/medicalTypes";
+import { opdRoutes } from "./routes/opd";
+import { operationRoutes } from "./routes/operations";
+import { operationTypeRoutes } from "./routes/operationTypes";
+import { patientRoutes } from "./routes/patients";
+import { permissionRoutes } from "./routes/permission";
+import { pregnantTreatmentTypeRoutes } from "./routes/pregnantTreatmentType";
+import { pricesRoutes } from "./routes/prices";
+import { suppliersRoutes } from "./routes/suppliers";
+import { therapyRoutes } from "./routes/therapies";
+import { userGroupRoutes } from "./routes/userGroups";
+import { userRoutes } from "./routes/users";
+import { vaccineRoutes } from "./routes/vaccine";
+import { vaccineTypesRoutes } from "./routes/vaccineTypes";
+import { visitRoutes } from "./routes/visits";
+import { wardsRoutes } from "./routes/wards";
 
 export function makeServer() {
   Polly.register(XHRAdapter);
@@ -12,138 +44,42 @@ export function makeServer() {
     logging: true,
   });
   const { server } = polly;
-
   server.host(BASE_PATH, () => {
-
-    // AUTH
-    server.namespace("/auth", () => {
-      server.post("/login").intercept((req, res) => {
-        const { username } = req.query;
-        switch (username) {
-          case "fail":
-            res.status(401);
-            break;
-          default:
-            res.status(200).json({
-              displayName: "John Doe",
-              token: "1qrj12fcxu3a21d21pjvba6g1",
-            });
-            break;
-        }
-      });
-    });
-
-    // PATIENTS
-    server.namespace("/patients", () => {
-      server.post("/").intercept((req, res) => {
-        const body = req.jsonBody();
-        switch (body.firstName) {
-          case "fail":
-            res.status(400);
-            break;
-          default:
-            res.status(201);
-            break;
-        }
-      });
-
-      server.get("/:code").intercept((req, res) => {
-        const code = req.params.code;
-        switch (code) {
-          case "1234561":
-            res.status(400);
-            break;
-          case "1234562":
-            res.status(204);
-            res.body = null;
-            break;
-          default:
-            res.status(200).json(patientDTO);
-        }
-      });
-
-      server.put("/:code").intercept((req, res) => {
-        const code = req.params.code;
-        switch (code) {
-          case "1234561":
-            res.status(400);
-            break;
-          case "1234562":
-            res.status(204);
-            res.body = null;
-            break;
-          default:
-            res.status(200).json(patientDTO);
-        }
-      });
-
-      server.get("/search").intercept((req, res) => {
-        switch (req.query.firstName) {
-          case "empty":
-            res.status(200).json([]);
-            break;
-          case "unexpected":
-            res.status(200).json({});
-            break;
-          case "fail":
-            res.status(400);
-            break;
-          default:
-            res
-              .status(200)
-              .json([
-                patientDTO,
-                patientDTO,
-                patientDTO,
-                patientDTO,
-                patientDTO,
-                patientDTO,
-              ]);
-        }
-      });
-    });
-
-    // EXAMINATIONS (AKA TRIAGE)
-    server.namespace("/examinations", () => {
-      server.post("/").intercept((req, res) => {
-        const body = req.jsonBody();
-        switch (body.pex_ID) {
-          case -1:
-            res.status(400);
-            break;
-          default:
-            res.status(201);
-            break;
-        }
-      });
-
-      server.post("/byPatientId/:patId").intercept((req, res) => {
-        const patId = req.params.patId;
-        switch (patId) {
-          case "empty":
-            res.status(200).json([]);
-            break;
-          case "unexpected":
-            res.status(200).json({});
-            break;
-          case "fail":
-            res.status(400);
-            break;
-          default:
-            res
-              .status(200)
-              .json([
-                patientExaminationDTO,
-                patientExaminationDTO,
-                patientExaminationDTO,
-                patientExaminationDTO,
-                patientExaminationDTO,
-                patientExaminationDTO,
-              ]);
-        }
-      });
-    });
+    userRoutes(server);
+    userGroupRoutes(server);
+    authRoutes(server);
+    patientRoutes(server);
+    visitRoutes(server);
+    examinationsRoutes(server);
+    therapyRoutes(server);
+    opdRoutes(server);
+    diseasesRoutes(server);
+    medicalRoutes(server);
+    admissionRoutes(server);
+    admissionTypesRoutes(server);
+    dischargeTypesRoutes(server);
+    wardsRoutes(server);
+    examTypesRoutes(server);
+    examRoutes(server);
+    labRoutes(server);
+    examRowRoutes(server);
+    labRoutes(server);
+    pricesRoutes(server);
+    billRoutes(server);
+    operationRoutes(server);
+    diseaseTypeRoutes(server);
+    ageTypeRoutes(server);
+    hospitalRoutes(server);
+    operationTypeRoutes(server);
+    vaccineRoutes(server);
+    vaccineTypesRoutes(server);
+    suppliersRoutes(server);
+    deliveryTypesRoutes(server);
+    medicalTypesRoutes(server);
+    pregnantTreatmentTypeRoutes(server);
+    deliveryResultTypeRoutes(server);
+    permissionRoutes(server);
+    labExamRequestRoutes(server);
   });
-
   return server;
 }

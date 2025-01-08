@@ -1,94 +1,222 @@
-import React, { FunctionComponent } from 'react';
-import Table from '../../table/Table';
+import { CircularProgress } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "libraries/hooks/redux";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { renderSummary } from "../../../../libraries/reduxUtils/convert";
+import { loadSummaryData } from "../../../../state/summary";
+import { IState } from "../../../../types";
+import Table from "../../table/Table";
+import { ORDER_BY_TYPE_PAGE_SIZE } from "../consts";
 
-const data = [
-  { date: "21/12/2021", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2021", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2020", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2020", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2020", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2020", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2021", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2018", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2019", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2019", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-  { date: "21/12/2019", type: "Pharmacologic treatment", result: "Result (1)", note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." }
-];
+import { SummaryType } from "../types";
+import useSummaryMetaData from "../useSummaryMetaData";
 
-const header = ["date", "type", "result"];
-const order = ["date"];
-const label = {
-  "date": "Date",
-  "type": "Typology",
-  "result": "Result",
-  "note": "Additional notes"
-}
+const PatientSummaryByType = () => {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const { labels, dateFields, header, order } = useSummaryMetaData();
 
-const PatientSummaryByType: FunctionComponent = () => {
+  const patientCode = useAppSelector(
+    (state: IState) => state.patients.selectedPatient.data?.code
+  );
+
+  const { isLoading, summaryData } = useAppSelector((state) => ({
+    isLoading: state.summary.summaryApisCall.status === "LOADING",
+    hasSucceeded: state.summary.summaryApisCall.status === "SUCCESS",
+    hasFailed: state.summary.summaryApisCall.status === "FAIL",
+    summaryData: state.summary.summaryApisCall.data ?? [],
+  }));
+
+  useEffect(() => {
+    if (patientCode) dispatch(loadSummaryData(patientCode));
+  }, [patientCode, dispatch]);
+
+  const medicals = useAppSelector((state) =>
+    state.medicals.medicalsOrderByName.data
+      ? state.medicals.medicalsOrderByName.data
+      : []
+  );
+
+  const filterByType = (type: string) => {
+    return summaryData.filter((item) => item.type === type);
+  };
 
   return (
-    <div className="patientSummary_type">
-      <div className="patientSummary_type_row">
-        <h4>Visite (3)</h4>
-        <Table
-          rowData={data}
-          tableHeader={header}
-          labelData={label}
-          columnsOrder={order}
-          rowsPerPage={3}
-          isCollapsabile={true}
-        />
-      </div>
-      
-      <div className="patientSummary_type_row">
-        <h4>Esame obiettivo (3)</h4>
-        <Table
-          rowData={data}
-          tableHeader={header}
-          labelData={label}
-          columnsOrder={order}
-          rowsPerPage={3}
-          isCollapsabile={true}
-        />
-      </div>
+    <>
+      {!isLoading ? (
+        <div className="patientSummary_type">
+          {filterByType(SummaryType.OPD).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.opd")}({filterByType(SummaryType.OPD).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.OPD),
+                  dateFields,
+                  labels
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.opd}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
 
-      <div className="patientSummary_type_row">
-        <h4>Prestazioni specialistiche (3)</h4>
-        <Table
-          rowData={data}
-          tableHeader={header}
-          labelData={label}
-          columnsOrder={order}
-          rowsPerPage={3}
-          isCollapsabile={true}
-        />
-      </div>
+          {filterByType(SummaryType.ADMISSION).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.admission")}(
+                {filterByType(SummaryType.ADMISSION).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.ADMISSION),
+                  dateFields,
+                  labels,
+                  medicals
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.admission}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
 
-      <div className="patientSummary_type_row">
-        <h4>Prestazioni diagnostiche (3)</h4>
-        <Table
-          rowData={data}
-          tableHeader={header}
-          labelData={label}
-          columnsOrder={order}
-          rowsPerPage={3}
-          isCollapsabile={true}
-        />
-      </div>
+          {filterByType(SummaryType.VISIT).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.visits")}({filterByType(SummaryType.VISIT).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.VISIT),
+                  dateFields,
+                  labels,
+                  medicals
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.visit}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
 
-      <div className="patientSummary_type_row">
-        <h4>Interventi operatori (3)</h4>
-        <Table
-          rowData={data}
-          tableHeader={header}
-          labelData={label}
-          columnsOrder={order}
-          rowsPerPage={3}
-          isCollapsabile={true}
-        />
-      </div>
-    </div>
+          {filterByType(SummaryType.OPERATION).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.operation")}(
+                {filterByType(SummaryType.OPERATION).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.OPERATION),
+                  dateFields,
+                  labels,
+                  medicals
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.operation}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
+
+          {filterByType(SummaryType.TRIAGE).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.triage")}({filterByType(SummaryType.TRIAGE).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.TRIAGE),
+                  dateFields,
+                  labels
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.triage}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
+
+          {filterByType(SummaryType.EXAMS).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.exams")}({filterByType(SummaryType.EXAMS).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.EXAMS),
+                  dateFields,
+                  labels
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.exam}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
+
+          {filterByType(SummaryType.THERAPY).length > 0 && (
+            <div className="patientSummary_type_row">
+              <h4>
+                {t("summary.therapy")}(
+                {filterByType(SummaryType.THERAPY).length})
+              </h4>
+              <Table
+                rowData={renderSummary(
+                  filterByType(SummaryType.THERAPY),
+                  dateFields,
+                  labels
+                )}
+                dateFields={dateFields}
+                tableHeader={header.type.therapy}
+                labelData={labels}
+                columnsOrder={order}
+                rowsPerPage={ORDER_BY_TYPE_PAGE_SIZE}
+                isCollapsabile={true}
+                showEmptyCell={false}
+                detailsExcludedFields={["date"]}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <CircularProgress style={{ marginLeft: "50%", position: "relative" }} />
+      )}
+    </>
   );
-}
+};
 
 export default PatientSummaryByType;

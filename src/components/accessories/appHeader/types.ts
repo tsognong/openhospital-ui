@@ -6,5 +6,3 @@ export interface IOwnProps {
   userCredentials: TUserCredentials;
   breadcrumbMap: TBreadcrumbMap;
 }
-
-export type TProps = IOwnProps;

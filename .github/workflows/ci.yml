@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - "develop"
 
 jobs:
   build:
@@ -11,6 +15,8 @@ jobs:
       - name: Installing...
         run: npm i
       - name: Building...
+        env:
+          CI: false
         run: npm run build
 
   unit-tests:
@@ -27,13 +33,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       # https://github.com/cypress-io/github-action
       - name: Cypress run
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v6
         with:
           record: false
           start: npm start
-          spec: cypress/integration/**/*
-          env: host=localhost,port=3000
           wait-on: "http://localhost:3000"

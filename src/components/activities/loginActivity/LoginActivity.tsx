@@ -1,43 +1,29 @@
-import { InputAdornment } from "@material-ui/core";
-import Link from "@material-ui/core/Link";
-import { RemoveRedEye } from "@material-ui/icons";
+import { RemoveRedEye } from "@mui/icons-material";
+import { InputAdornment } from "@mui/material";
+import Link from "@mui/material/Link";
 import classNames from "classnames";
 import { useFormik } from "formik";
-import get from "lodash.get";
-import has from "lodash.has";
-import React, { FunctionComponent, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "libraries/hooks/redux";
+import { get, has } from "lodash";
+import { FC, default as React, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { connect } from "react-redux";
-import { useHistory, useLocation } from "react-router";
+import { Link as RouterLink } from "react-router-dom";
 import { object, string } from "yup";
 import logo from "../../../assets/logo-color.svg";
-import { AUTH_KEY } from "../../../consts";
-import { SessionStorage } from "../../../libraries/storage/storage";
-import {
-  setAuthenticationSuccess,
-  setAuthenticationThunk,
-} from "../../../state/main/actions";
-import { IState } from "../../../types";
+import { HospitalDTO } from "../../../generated";
+import { useAuthentication } from "../../../libraries/authUtils/useAuthentication";
+import { getHospital } from "../../../state/hospital";
+import { setAuthentication } from "../../../state/main";
 import Button from "../../accessories/button/Button";
 import Footer from "../../accessories/footer/Footer";
 import TextField from "../../accessories/textField/TextField";
 import "./styles.scss";
-import { IDispatchProps, IStateProps, IValues, TProps } from "./types";
+import { IValues } from "./types";
 
-const LoginActivity: FunctionComponent<TProps> = ({
-  setAuthenticationThunk,
-  setAuthenticationSuccess,
-  status,
-  successRoute,
-}) => {
+const LoginActivity: FC = () => {
+  useAuthentication();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const userCredentials = SessionStorage.read(AUTH_KEY);
-    if (userCredentials) {
-      setAuthenticationSuccess(userCredentials);
-    }
-  }, [setAuthenticationSuccess]);
+  const dispatch = useAppDispatch();
 
   const initialValues: IValues = {
     username: "",
@@ -53,7 +39,7 @@ const LoginActivity: FunctionComponent<TProps> = ({
     initialValues,
     validationSchema,
     onSubmit: (values: IValues) => {
-      setAuthenticationThunk(values.username, values.password);
+      dispatch(setAuthentication(values));
     },
   });
 
@@ -66,16 +52,24 @@ const LoginActivity: FunctionComponent<TProps> = ({
   const getErrorText = (fieldName: string): string => {
     return has(formik.touched, fieldName) ? get(formik.errors, fieldName) : "";
   };
+  const errorMessage = useAppSelector((state) => {
+    const error = state.main.authentication.error;
+    return error?.status === 401
+      ? t("errors.incorrectcredentials")
+      : t(error?.message ?? "errors.somethingwrong");
+  });
 
-  const history = useHistory();
-  const location = useLocation<{ from: Location }>();
+  const status = useAppSelector(
+    (state) => state.main.authentication.status || "IDLE"
+  );
 
   useEffect(() => {
-    if (status === "SUCCESS") {
-      const { from } = location.state || { from: { pathname: successRoute } };
-      history.replace(from);
-    }
-  }, [status, location.state, history, successRoute]);
+    dispatch(getHospital());
+  }, [dispatch]);
+
+  const hospital = useAppSelector(
+    (state) => state.hospital.getHospital.data
+  ) as HospitalDTO;
 
   return (
     <div className="login">
@@ -87,9 +81,9 @@ const LoginActivity: FunctionComponent<TProps> = ({
           width="150px"
         />
         <div className="login__title">
-          Princeton-Plainsboro Teaching Hospital
+          {hospital?.description ?? t("login.signin")}
         </div>
-        <div className="login__panel">
+        <div data-cy="login-panel" className="login__panel">
           <form className="login__panel__form" onSubmit={formik.handleSubmit}>
             <div className="login__panel__textField">
               <TextField
@@ -129,11 +123,12 @@ const LoginActivity: FunctionComponent<TProps> = ({
               />
             </div>
             <div
+              data-cy="login-invalid-credentials"
               className={classNames("login__invalidCredentials", {
                 hidden: status !== "FAIL",
               })}
             >
-              {t("login.incorrectcredentials")}
+              {errorMessage}
             </div>
             <div className="login__buttonContainer">
               <Button
@@ -145,13 +140,15 @@ const LoginActivity: FunctionComponent<TProps> = ({
                 {t("login.login")}
               </Button>
             </div>
-            <div>
+          </form>
+          <div>
+            <RouterLink to="/forgot">
               <Link className="login__panel__resetPassword" component="button">
                 {t("login.forgotpassword")}
               </Link>
-            </div>
-            &emsp;
-          </form>
+            </RouterLink>
+          </div>
+          &emsp;
         </div>
       </div>
       <Footer />
@@ -159,13 +156,4 @@ const LoginActivity: FunctionComponent<TProps> = ({
   );
 };
 
-const mapStateToProps = (state: IState): IStateProps => ({
-  status: state.main.authentication.status || "IDLE",
-});
-
-const mapDispatchToProps: IDispatchProps = {
-  setAuthenticationThunk,
-  setAuthenticationSuccess,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(LoginActivity);
+export default LoginActivity;

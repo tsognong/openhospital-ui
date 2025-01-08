@@ -1,35 +1,25 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
-import * as serviceWorker from "./serviceWorker";
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { IState } from "./types";
-import { applyMiddleware, createStore, combineReducers } from "redux";
-import { composeWithDevTools } from "redux-devtools-extension";
-import thunkMiddleware from "redux-thunk";
-import main from "./state/main/reducer";
-import patients from "./state/patients/reducer";
-import examinations from "./state/examinations/reducer";
+import App from "./App";
+import "./index.css";
 import { makeServer } from "./mockServer/server";
+import * as serviceWorker from "./serviceWorker";
+import { store } from "./state/store";
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.REACT_APP_USE_MOCK_API === "true") {
+  console.log("Using mocked api");
   makeServer();
 }
 
-const reducer = combineReducers<IState>({ main, patients, examinations });
-const store = createStore(
-  reducer,
-  composeWithDevTools(applyMiddleware(thunkMiddleware))
-);
-
-ReactDOM.render(
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(
   <React.StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );
 
 // If you want your app to work offline and load faster, you can change

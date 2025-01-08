@@ -1,41 +1,31 @@
+import moment from "moment";
 import { TFields } from "../../../libraries/formDataHandling/types";
 import { TherapyFormFieldName } from "./therapyForm/types";
-
-const medicalOptions = [
-  {
-    label: "Med 1",
-    value: "Medical 1",
-  },
-  {
-    label: "Med 2",
-    value: "Medical 2",
-  },
-];
 
 export const initialFields: TFields<TherapyFormFieldName> = {
   medicalId: {
     value: "",
     type: "text",
-    options: medicalOptions,
+    options: [],
   },
   qty: {
-    value: "10",
+    value: "1",
     type: "number",
   },
   nbDays: {
-    value: "10",
+    value: "1",
     type: "number",
   },
   nbWeeks: {
-    value: "10",
+    value: "0",
     type: "number",
   },
   nbMonths: {
-    value: "10",
+    value: "0",
     type: "number",
   },
   freqInDay: {
-    value: "2",
+    value: "1",
     type: "number",
   },
   freqInPeriod: {
@@ -43,23 +33,15 @@ export const initialFields: TFields<TherapyFormFieldName> = {
     type: "number",
   },
   startDate: {
-    value: "",
+    value: moment().toISOString(),
     type: "date",
   },
   endDate: {
-    value: "",
+    value: moment().toISOString(),
     type: "date",
   },
-  notifyInt: {
-    value: "0",
-    type: "number",
-  },
-  smsInt: {
-    value: "0",
-    type: "number",
-  },
   note: {
-    value: "sample note",
+    value: "",
     type: "text",
   },
 };

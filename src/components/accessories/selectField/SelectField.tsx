@@ -1,13 +1,16 @@
 import {
+  CircularProgress,
   FormControl,
   FormHelperText,
   InputLabel,
   MenuItem,
   Select,
-} from "@material-ui/core";
+} from "@mui/material";
 import React, { FunctionComponent, memo, useEffect, useState } from "react";
-import { IProps } from "./types";
+import { useTranslation } from "react-i18next";
+import { FIELD_VALIDATION } from "../../../types";
 import "./styles.scss";
+import { IProps } from "./types";
 
 const SelectField: FunctionComponent<IProps> = ({
   fieldName,
@@ -16,10 +19,16 @@ const SelectField: FunctionComponent<IProps> = ({
   isValid,
   errorText,
   onBlur,
+  onChange,
+  isLoading = false,
   options,
+  translateOptions = false,
+  disabled = false,
+  variant = "outlined",
+  required = FIELD_VALIDATION.IDLE,
 }) => {
   const [value, setValue] = useState("");
-
+  const { t } = useTranslation();
   useEffect(() => {
     setValue(fieldValue);
   }, [fieldValue]);
@@ -31,23 +40,45 @@ const SelectField: FunctionComponent<IProps> = ({
   };
 
   return (
-    <FormControl variant="outlined" className="selectField" size="small">
+    <FormControl
+      disabled={disabled}
+      variant={variant}
+      required={required === FIELD_VALIDATION.REQUIRED}
+      className="selectField"
+      size="small"
+    >
       <InputLabel id={fieldName} error={isValid}>
-        {label}
+        {required === FIELD_VALIDATION.SUGGESTED ? label + " **" : label}
       </InputLabel>
       <Select
         labelId={`${fieldName}-label`}
         id={fieldName}
         name={fieldName}
         value={value}
-        onChange={(e) => setValue(e.target.value as string)}
+        onChange={(e) => {
+          setValue(e.target.value as string);
+          if (onChange !== undefined) onChange(e.target.value as string);
+        }}
         onBlur={handleOnBlur}
-        label={label}
+        label={required === FIELD_VALIDATION.SUGGESTED ? label + " **" : label}
         error={isValid}
       >
-        <MenuItem value=""> </MenuItem>
+        {isLoading && (
+          <MenuItem value="" key={"nano"}>
+            <CircularProgress
+              style={{
+                marginLeft: "50%",
+                position: "relative",
+              }}
+              size={20}
+            />
+          </MenuItem>
+        )}
+
         {options.map((option, index) => (
-          <MenuItem value={option.value} key={index}>{option.label}</MenuItem>
+          <MenuItem value={option.value} key={index}>
+            {translateOptions ? t(option.label) : option.label}
+          </MenuItem>
         ))}
       </Select>
       <FormHelperText error>{errorText || ""}</FormHelperText>

@@ -1,13 +1,24 @@
+import { OperationRowDTO } from "../../../../generated";
 import { IForm } from "../../../../libraries/formDataHandling/types";
 
-export type TProps = IForm<TPatientOPDFormFieldName, any>;
+interface IOwnProps {
+  creationMode: boolean;
+  shouldResetForm: boolean;
+  resetFormCallback: () => void;
+  addOperationCallback?: () => void;
+  operationRowsToEdit?: OperationRowDTO[];
+}
+export type TProps = IForm<TPatientOPDFormFieldName, any> & IOwnProps;
 
 export type TPatientOPDFormFieldName =
-  | "opdDate"
-  | "anamnesis"
-  | "opd_1"
-  | "opd_2"
-  | "opd_3"
-  | "note";
-  
-  
+  | "date"
+  | "disease"
+  | "disease"
+  | "disease2"
+  | "disease3"
+  | "ward"
+  | "note"
+  | "newPatient"
+  | "referralFrom"
+  | "referralTo"
+  | "prescription";

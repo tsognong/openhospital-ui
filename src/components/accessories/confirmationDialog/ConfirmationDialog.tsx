@@ -1,9 +1,8 @@
-import Dialog from "@material-ui/core/Dialog";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import React, { FunctionComponent } from "react";
-import SmallButton from "../smallButton/SmallButton";
-import TextButton from "../textButton/TextButton";
+import Button from "../button/Button";
 import "./styles.scss";
 import { IProps } from "./types";
 
@@ -20,24 +19,38 @@ const ConfirmationDialog: FunctionComponent<IProps> = ({
   return (
     <Dialog open={isOpen}>
       <DialogTitle>
-        <div className="dialog__title">{title}</div>
+        <div data-cy="dialog-title" className="dialog__title">
+          {title}
+        </div>
       </DialogTitle>
       <DialogContent>
         <div className="dialog__content">
           <div className="dialog__divider" />
           <img className="dialog__icon" alt="dialog-icon" src={icon} />
-          <div className="dialog__info">{info}</div>
-          <div className="dialog__buttonSet">
-            <div className="return_button">
-              <SmallButton onClick={handlePrimaryButtonClick}>
+          <div className="dialog__info" data-cy="dialog-info">
+            {info}
+          </div>
+          <div className="dialog__buttonSet" data-cy="dialog-button-set">
+            <div data-cy="dialog-return-button" className="return_button">
+              <Button
+                dataCy="approve-dialog"
+                type="submit"
+                variant="contained"
+                onClick={handlePrimaryButtonClick}
+              >
                 {primaryButtonLabel}
-              </SmallButton>
+              </Button>
             </div>
             {secondaryButtonLabel ? (
               <div className="reset_button">
-                <TextButton onClick={handleSecondaryButtonClick}>
+                <Button
+                  dataCy="close-dialog"
+                  type="reset"
+                  variant="text"
+                  onClick={handleSecondaryButtonClick}
+                >
                   {secondaryButtonLabel}
-                </TextButton>
+                </Button>
               </div>
             ) : (
               ""

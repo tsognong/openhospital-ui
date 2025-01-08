@@ -1,17 +1,41 @@
 @import "../../../../styles/variables";
 @import "../../../../../node_modules/susy/sass/susy";
 
+.MuiFormGroup-root {
+  flex-wrap: none !important;
+  flex-direction: row !important;
+  width: 320px;
+}
+
+.Mui-checked {
+  color: $c-color-primary !important;
+}
+
+.checkboxes {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
 .patientOpdForm {
   display: inline-block;
   flex-direction: column;
   align-items: center;
   width: 100%;
 
+  .formInsertMode {
+    margin: 0px 0px 20px;
+  }
+
+  .patientOpdForm__form {
+    width: 100%;
+  }
+
   .patientOpdForm__item {
     margin: 7px 0px;
     padding: 0px 15px;
     width: 33%;
-    &.fullWith{
+    &.fullWidth {
       width: 100%;
     }
     @include susy-media($narrow) {
@@ -32,21 +56,42 @@
       width: 100%;
     }
 
-    &.fullWidth{
+    &.fullWidth {
       width: 100%;
     }
 
-    &.compressed{
+    &.compressed {
       .textField {
         float: left;
         width: 50%;
-        &:nth-of-type(1){
+        &:nth-of-type(1) {
           padding-right: 10px;
         }
       }
     }
   }
 
+  details {
+    border: 0px solid $c-grey-lighter;
+    border-width: thin;
+    border-radius: 4px;
+    padding: 5px;
+    .empty_operation_rows {
+      color: $c-grey-lighter;
+      display: table;
+      margin: 0 auto;
+    }
+  }
+  details > summary {
+    margin-bottom: 2px;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+
+    .operation_icon {
+      margin-right: 5px;
+    }
+  }
   .patientOpdForm__buttonSet {
     display: flex;
     margin-top: 25px;
@@ -55,9 +100,15 @@
     @include susy-media($smartphone_small) {
       display: block;
     }
-
+    .visits_button {
+      display: flex;
+      flex-direction: row-reverse;
+      @include susy-media($smartphone_small) {
+        display: block;
+      }
+    }
     .submit_button,
-    .reset_button {
+    .reset_button .add_button {
       .MuiButton-label {
         font-size: smaller;
         letter-spacing: 1px;
@@ -71,4 +122,9 @@
       }
     }
   }
+}
+
+.add_another_item {
+  margin: 7px 0px;
+  padding: 0px 15px;
 }

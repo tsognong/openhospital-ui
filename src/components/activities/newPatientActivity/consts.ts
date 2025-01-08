@@ -8,11 +8,11 @@ import { TPatientDataFormFieldName } from "../../accessories/patientDataForm/typ
 
 const sexOptions = [
   {
-    label: "Male",
+    label: "common.male",
     value: PatientDTOSexEnum.M,
   },
   {
-    label: "Female",
+    label: "common.female",
     value: PatientDTOSexEnum.F,
   },
 ];
@@ -54,12 +54,27 @@ const bloodTypeOptions = [
 
 const yesOrNoOptions = [
   {
-    label: "Yes",
+    label: "common.yes",
     value: "Y",
   },
   {
-    label: "No",
+    label: "common.no",
     value: "N",
+  },
+];
+
+const yesOrNoOrUnknownOptions = [
+  {
+    label: "common.yes",
+    value: "Y",
+  },
+  {
+    label: "common.no",
+    value: "N",
+  },
+  {
+    label: "common.unknown",
+    value: "U",
   },
 ];
 
@@ -105,7 +120,7 @@ export const initialFields: TFields<TPatientDataFormFieldName> = {
     value: "",
     type: "text",
   },
-  mother_name: {
+  motherName: {
     value: "",
     type: "text",
   },
@@ -113,7 +128,7 @@ export const initialFields: TFields<TPatientDataFormFieldName> = {
     value: PatientDTOMotherEnum.A,
     type: "text",
   },
-  father_name: {
+  fatherName: {
     value: "",
     type: "text",
   },
@@ -127,14 +142,14 @@ export const initialFields: TFields<TPatientDataFormFieldName> = {
     options: bloodTypeOptions,
   },
   hasInsurance: {
-    value: "",
+    value: "N",
     type: "text",
     options: yesOrNoOptions,
   },
   parentTogether: {
-    value: "",
+    value: "U",
     type: "text",
-    options: yesOrNoOptions,
+    options: yesOrNoOrUnknownOptions,
   },
   taxCode: {
     value: "",

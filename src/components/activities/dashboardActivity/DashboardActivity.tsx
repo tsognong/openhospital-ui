@@ -1,81 +1,94 @@
-import React, { FunctionComponent, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
-import { connect } from "react-redux";
-import { Redirect } from "react-router";
+import { useAppSelector } from "libraries/hooks/redux";
+import React, { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router";
 import PlusIcon from "../../../assets/PlusIcon";
 import SearchIcon from "../../../assets/SearchIcon";
-import { IState } from "../../../types";
+import { PATHS } from "../../../consts";
+import { Permission } from "../../../libraries/permissionUtils/Permission";
+import { usePermission } from "../../../libraries/permissionUtils/usePermission";
 import AppHeader from "../../accessories/appHeader/AppHeader";
 import Footer from "../../accessories/footer/Footer";
 import LargeButton from "../../accessories/largeButton/LargeButton";
 import "./styles.scss";
-import { IStateProps, TProps, TActivityTransitionState } from "./types";
+import { IOwnProps, TActivityTransitionState } from "./types";
 
-const DashboardActivity: FunctionComponent<TProps> = ({
-  userCredentials,
+const PatientDashboardActivity: FC<IOwnProps> = ({
   newPatientRoute,
   searchPatientRoute,
 }) => {
   const { t } = useTranslation();
 
+  const { userCredentials } = useAppSelector((state) => ({
+    userCredentials: state.main.authentication.data,
+  }));
+
   const breadcrumbMap = {
-    [t("nav.dashboard")]: "/",
+    [t("nav.patients")]: PATHS.patients,
   };
 
-  const [
-    activityTransitionState,
-    setActivityTransitionState,
-  ] = useState<TActivityTransitionState>("IDLE");
+  const canCreate = usePermission("patients.create");
+
+  const [activityTransitionState, setActivityTransitionState] =
+    useState<TActivityTransitionState>("IDLE");
 
   switch (activityTransitionState) {
     case "TO_NEW_PATIENT":
-      return <Redirect to={newPatientRoute} />;
+      return <Navigate to={newPatientRoute} />;
     case "TO_SEARCH_PATIENT":
-      return <Redirect to={searchPatientRoute} />;
+      return <Navigate to={searchPatientRoute} />;
     default:
       return (
-        <div className="dashboard">
+        <div data-cy="dashboard-activity" className="dashboard">
           <AppHeader
             userCredentials={userCredentials ? userCredentials : {}}
             breadcrumbMap={breadcrumbMap}
           />
           <div className="dashboard__background">
-            <div className="dashboard__greeter">
-              <Trans
-                i18nKey="dashboard.welcomename"
-                values={{ name: userCredentials?.displayName }}
-              />
-            </div>
-            <div className="dashboard__actions">
-              <div className="dashboard__actions__button">
-                <LargeButton
-                  handleClick={() =>
-                    setActivityTransitionState("TO_NEW_PATIENT")
-                  }
-                >
-                  <div className="largeButton__inner">
-                    <PlusIcon />
-                    <div className="largeButton__inner__label">
-                      {t("dashboard.newpatient")}
-                    </div>
-                  </div>
-                </LargeButton>
+            <Permission require="patients.access">
+              <div className="dashboard__greeter">
+                <span className="user-welcome">
+                  {t("dashboard.welcomename")}
+                </span>
+                {userCredentials?.username ? (
+                  <strong className="user-name">
+                    &nbsp;{userCredentials?.username}
+                  </strong>
+                ) : null}
               </div>
-              <div className="dashboard__actions__button">
-                <LargeButton
-                  handleClick={() =>
-                    setActivityTransitionState("TO_SEARCH_PATIENT")
-                  }
-                >
-                  <div className="largeButton__inner">
-                    <SearchIcon width="43" height="43" />
-                    <div className="largeButton__inner__label">
-                      {t("dashboard.searchpatients")}
-                    </div>
+              <div className="dashboard__actions">
+                {canCreate && (
+                  <div className="dashboard__actions__button">
+                    <LargeButton
+                      handleClick={() =>
+                        setActivityTransitionState("TO_NEW_PATIENT")
+                      }
+                    >
+                      <div className="largeButton__inner">
+                        <PlusIcon />
+                        <div className="largeButton__inner__label">
+                          {t("dashboard.newpatient")}
+                        </div>
+                      </div>
+                    </LargeButton>
                   </div>
-                </LargeButton>
+                )}
+                <div className="dashboard__actions__button">
+                  <LargeButton
+                    handleClick={() =>
+                      setActivityTransitionState("TO_SEARCH_PATIENT")
+                    }
+                  >
+                    <div className="largeButton__inner">
+                      <SearchIcon width="43" height="43" />
+                      <div className="largeButton__inner__label">
+                        {t("dashboard.searchpatients")}
+                      </div>
+                    </div>
+                  </LargeButton>
+                </div>
               </div>
-            </div>
+            </Permission>
           </div>
           <Footer />
         </div>
@@ -83,8 +96,4 @@ const DashboardActivity: FunctionComponent<TProps> = ({
   }
 };
 
-const mapStateToProps = (state: IState): IStateProps => ({
-  userCredentials: state.main.authentication.data,
-});
-
-export default connect(mapStateToProps)(DashboardActivity);
+export default PatientDashboardActivity;

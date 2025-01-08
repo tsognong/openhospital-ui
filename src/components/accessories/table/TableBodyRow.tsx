@@ -1,9 +1,9 @@
-import React, { FunctionComponent } from "react";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import { Collapse, IconButton } from "@mui/material";
+import TableCell from "@mui/material/TableCell";
+import TableRow from "@mui/material/TableRow";
 import _ from "lodash";
-import { Collapse, IconButton } from "@material-ui/core";
-import TableCell from "@material-ui/core/TableCell";
-import TableRow from "@material-ui/core/TableRow";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@material-ui/icons";
+import React, { FunctionComponent, useEffect } from "react";
 import "./styles.scss";
 import { IRowProps } from "./types";
 
@@ -14,12 +14,27 @@ const TableBodyRow: FunctionComponent<IRowProps> = ({
   tableHeader,
   renderActions,
   isCollapsabile,
+  showEmptyCell = true,
+  renderCellDetails,
+  rowClassNames,
+  coreRow,
+  detailColSpan,
+  expanded,
+  dateFields,
+  detailsExcludedFields,
 }) => {
   const [open, setOpen] = React.useState(false);
 
+  useEffect(() => {
+    setOpen(expanded ?? false);
+  }, [expanded]);
+
   return (
     <>
-      <TableRow key={rowIndex}>
+      <TableRow
+        className={rowClassNames ? rowClassNames(row) : ""}
+        key={rowIndex}
+      >
         {isCollapsabile ? (
           <TableCell width="40">
             <IconButton
@@ -34,9 +49,18 @@ const TableBodyRow: FunctionComponent<IRowProps> = ({
           ""
         )}
         {tableHeader.map((key, index) => {
-          return Object.keys(row).includes(key) ? (
+          const newRow = { ...row };
+          dateFields.forEach((dateField) => {
+            if (row[dateField]) {
+              const parts = row[dateField].split(" ");
+              if (parts.length === 2) {
+                newRow[dateField] = parts[0];
+              }
+            }
+          });
+          return Object.keys(newRow).includes(key) ? (
             <TableCell align="left" key={index}>
-              {row[key]}
+              {newRow[key]}
             </TableCell>
           ) : (
             ""
@@ -46,21 +70,40 @@ const TableBodyRow: FunctionComponent<IRowProps> = ({
       </TableRow>
       {isCollapsabile ? (
         <TableRow>
-          <TableCell style={{ padding: 0, borderBottom: 0 }} colSpan={6}>
+          <TableCell
+            style={{ padding: 0, borderBottom: 0, margin: 0 }}
+            colSpan={detailColSpan ?? 6}
+          >
             <Collapse
               in={open}
               timeout="auto"
               unmountOnExit
               className="collapseWrapper"
             >
-              <ul>
-                {Object.keys(_.omit(row, tableHeader)).map((key, index) => (
-                  <li className="collapseItem_row" key={index}>
-                    <strong>{labelData[key]}:&nbsp;</strong>
-                    <span>{row[key]}</span>
-                  </li>
-                ))}
-              </ul>
+              {renderCellDetails ? (
+                renderCellDetails({ ...coreRow })
+              ) : (
+                <ul>
+                  {Object.keys(
+                    _.omit(
+                      labelData,
+                      tableHeader
+                        .filter((item) => !dateFields.includes(item))
+                        .concat(detailsExcludedFields ?? [])
+                    )
+                  )
+                    .filter((key) => Object.keys(row).includes(key))
+                    .map(
+                      (key, index) =>
+                        (showEmptyCell || !!row[key]) && (
+                          <li className="collapseItem_row" key={index}>
+                            <strong>{labelData[key]}:&nbsp;</strong>
+                            <span>{row[key]}</span>
+                          </li>
+                        )
+                    )}
+                </ul>
+              )}
             </Collapse>
           </TableCell>
         </TableRow>

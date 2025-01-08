@@ -1,6 +1,6 @@
 import { PatientDTO } from "../../../generated";
 import { TUserCredentials } from "../../../state/main/types";
-import { IAction, TAPIResponseStatus } from "../../../state/types";
+import { TAPIResponseStatus } from "../../../state/types";
 
 export interface IStateProps {
   userCredentials: TUserCredentials;
@@ -10,17 +10,17 @@ export interface IStateProps {
 
 export interface IPatientSearchItemProps {
   patient: PatientDTO;
-  getPatientSuccessCallback: (patient: PatientDTO) => void;
+  getPatientSuccessCallback?: (patient: PatientDTO) => void;
+  hideAdditionalInformation?: boolean;
 }
 
-export interface IDispatchProps {
-  searchPatient: (values: TValues) => void;
-  getPatientSuccess: (patient: PatientDTO) => IAction<PatientDTO, {}>;
-}
-
-export type TProps = IStateProps & IDispatchProps;
-
-export type TValues = Record<TFieldName, string>;
+export type TValues = {
+  id: string;
+  firstName: string;
+  secondName: string;
+  birthDate: string;
+  address: string;
+};
 
 export type TFieldName =
   | "id"

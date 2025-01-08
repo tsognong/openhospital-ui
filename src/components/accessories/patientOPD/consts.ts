@@ -1,29 +1,46 @@
+import moment from "moment";
 import { TFields } from "../../../libraries/formDataHandling/types";
 import { TPatientOPDFormFieldName } from "./patientOPDForm/types";
 
 export const initialFields: TFields<TPatientOPDFormFieldName> = {
-  opdDate: {
-    value: "",
+  date: {
+    value: moment().toISOString(),
     type: "date",
   },
-  anamnesis: {
+  disease: {
     value: "",
     type: "text",
   },
-  opd_1: {
+  ward: {
     value: "",
     type: "text",
   },
-  opd_2: {
+  disease2: {
     value: "",
     type: "text",
   },
-  opd_3: {
+  disease3: {
     value: "",
     type: "text",
   },
   note: {
     value: "",
     type: "text",
-  }
+  },
+  newPatient: {
+    value: "N",
+    type: "text",
+  },
+  referralFrom: {
+    value: "",
+    type: "text",
+  },
+  referralTo: {
+    value: "",
+    type: "text",
+  },
+  prescription: {
+    value: "",
+    type: "text",
+  },
 };

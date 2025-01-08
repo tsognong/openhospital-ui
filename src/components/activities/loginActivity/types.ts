@@ -1,22 +1,6 @@
-import { LoginResponse } from "../../../generated";
-import { IAction, TAPIResponseStatus } from "../../../state/types";
+import { PropsWithChildren } from "react";
 
-interface IOwnProps {
-  successRoute: string;
-}
-
-export interface IStateProps {
-  status: TAPIResponseStatus;
-}
-
-export interface IDispatchProps {
-  setAuthenticationThunk: (username: string, password: string) => void;
-  setAuthenticationSuccess: (
-    userCredentials: LoginResponse
-  ) => IAction<LoginResponse, {}>;
-}
-
-export type TProps = IOwnProps & IStateProps & IDispatchProps;
+export interface IRedirectAfterLogin extends PropsWithChildren {}
 
 export interface IValues {
   username: string;

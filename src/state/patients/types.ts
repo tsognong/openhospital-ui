@@ -1,9 +1,11 @@
-import { PatientDTO } from "../../generated";
-import { IApiResponse } from "../types";
+import { PagePatientDTO, PatientDTO } from "../../generated";
+import { ApiResponse } from "../types";
 
 export type IPatientsState = {
-  createPatient: IApiResponse<null>;
-  searchResults: IApiResponse<Array<PatientDTO>>;
-  selectedPatient: IApiResponse<PatientDTO>;
-  updatePatient: IApiResponse<null>;
+  createPatient: ApiResponse<PatientDTO>;
+  searchResults: ApiResponse<Array<PatientDTO>>;
+  selectedPatient: ApiResponse<PatientDTO>;
+  updatePatient: ApiResponse<PatientDTO>;
+  getCities: ApiResponse<Array<string>>;
+  getPatients: ApiResponse<PagePatientDTO>;
 };

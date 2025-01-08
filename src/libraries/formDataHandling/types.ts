@@ -5,9 +5,15 @@ export type TFieldAddress =
   | "isVisible"
   | "options";
 
-export type TFieldType = "text" | "number" | "date" | "select" | "decimal";
+export type TFieldType =
+  | "text"
+  | "number"
+  | "date"
+  | "select"
+  | "decimal"
+  | "boolean";
 
-export type TFieldFormattedValue = string | number;
+export type TFieldFormattedValue = string | number | any;
 
 export interface IForm<T extends string, U> {
   fields: TFields<T>;
@@ -22,6 +28,7 @@ export interface IFieldContent {
   type: TFieldType;
   isEnabled?: boolean;
   isVisible?: boolean;
+  isArray?: boolean;
   options?: Array<{ label: string; value: string }>;
 }
 

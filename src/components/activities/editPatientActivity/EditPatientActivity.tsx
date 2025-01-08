@@ -1,18 +1,19 @@
-import isEmpty from "lodash.isempty";
-import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import { isEmpty } from "lodash";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { connect } from "react-redux";
-import { Redirect, useParams } from "react-router";
+import { Navigate, useParams } from "react-router";
 import checkIcon from "../../../assets/check-icon.png";
+import { PATHS } from "../../../consts";
 import { PatientDTO } from "../../../generated";
 import { updateFields } from "../../../libraries/formDataHandling/functions";
+import { useAppDispatch, useAppSelector } from "../../../libraries/hooks/redux";
+import { Permission } from "../../../libraries/permissionUtils/Permission";
 import { scrollToElement } from "../../../libraries/uiUtils/scrollToElement";
 import {
+  getPatient,
   updatePatient,
   updatePatientReset,
-  getPatientThunk,
-} from "../../../state/patients/actions";
-import { IState } from "../../../types";
+} from "../../../state/patients";
 import AppHeader from "../../accessories/appHeader/AppHeader";
 import ConfirmationDialog from "../../accessories/confirmationDialog/ConfirmationDialog";
 import Footer from "../../accessories/footer/Footer";
@@ -20,66 +21,87 @@ import InfoBox from "../../accessories/infoBox/InfoBox";
 import PatientDataForm from "../../accessories/patientDataForm/PatientDataForm";
 import { initialFields } from "../newPatientActivity/consts";
 import "./styles.scss";
-import {
-  IDispatchProps,
-  IStateProps,
-  TActivityTransitionState,
-  TProps,
-} from "./types";
+import { TActivityTransitionState } from "./types";
 
-const EditPatientActivity: FunctionComponent<TProps> = ({
-  userCredentials,
-  isLoading,
-  updatePatient,
-  updatePatientReset,
-  hasSucceeded,
-  hasFailed,
-  patient,
-  getPatientThunk,
-}) => {
+const EditPatientActivity = () => {
+  const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
 
+  const { userCredentials, isLoading, hasSucceeded, hasFailed, patient } =
+    useAppSelector((state) => ({
+      userCredentials: state.main.authentication.data,
+      isLoading: state.patients.updatePatient.status === "LOADING",
+      hasSucceeded: state.patients.updatePatient.status === "SUCCESS",
+      hasFailed: state.patients.updatePatient.status === "FAIL",
+      patient: state.patients.selectedPatient,
+    }));
+
+  // Reset patient update state to avoid error displaying
+  // in patient details activity.
+  // See issue [OHCS-107](https://openhospital.atlassian.net/browse/OHCS-107)
   useEffect(() => {
-    if (isEmpty(patient.data) && patient.status === "IDLE") {
-      getPatientThunk(id);
+    return () => {
+      updatePatientReset();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isEmpty(patient.data) && patient.status === "IDLE" && id) {
+      dispatch(getPatient(id));
     }
-  }, [patient, id, getPatientThunk]);
+  }, [patient, id, dispatch]);
 
   const breadcrumbMap = {
-    [t("nav.dashboard")]: "/",
-    [t("nav.searchpatient")]: "/search",
-    [t("nav.patientdashboard")]: `/details/${patient.data?.code}`,
-    [t("nav.editpatient")]: `/details/${patient.data?.code}/edit`,
+    [t("nav.patients")]: PATHS.patients,
+    [t("nav.searchpatient")]: PATHS.patients_search,
+    [t(
+      "nav.patientdashboard"
+    )]: `${PATHS.patients_details}/${patient.data?.code}`,
+    [t(
+      "nav.editpatient"
+    )]: `${PATHS.patients_details}/${patient.data?.code}/edit`,
   };
+
+  const errorMessage = useAppSelector(
+    (state) =>
+      state.patients.updatePatient.error?.message || t("common.somethingwrong")
+  ) as string;
 
   const onSubmit = (updatePatientValues: PatientDTO) => {
     if (patient?.data?.code)
-      updatePatient(patient?.data?.code, updatePatientValues);
-    else
-      console.error(
-        'The Patient: PatientDTO object must have a "code" property.'
+      dispatch(
+        updatePatient({
+          code: patient?.data?.code,
+          patientDTO: {
+            ...updatePatientValues,
+            code: patient?.data?.code,
+            allergies: patient.data?.allergies,
+            anamnesis: patient.data?.anamnesis,
+          },
+        })
       );
   };
 
-  const [
-    activityTransitionState,
-    setActivityTransitionState,
-  ] = useState<TActivityTransitionState>("IDLE");
-  const [
-    openConfirmationMessage,
-    setOpenConfirmationMessage,
-  ] = useState<boolean>(false);
+  const [activityTransitionState, setActivityTransitionState] =
+    useState<TActivityTransitionState>("IDLE");
+  const [openConfirmationMessage, setOpenConfirmationMessage] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (isEmpty(patient.data) && patient.status === "IDLE") {
+      dispatch(getPatient(id!));
+    }
+  }, [dispatch, patient, id]);
 
   useEffect(() => {
     if (activityTransitionState === "TO_PATIENT") {
-      getPatientThunk(id);
-      updatePatientReset();
       setShouldResetForm(true);
     } else if (activityTransitionState === "TO_KEEP_EDITING") {
       setOpenConfirmationMessage(false);
+      setActivityTransitionState("IDLE");
     }
-  }, [activityTransitionState, updatePatientReset, getPatientThunk, id]);
+  }, [dispatch, activityTransitionState, id]);
 
   useEffect(() => {
     setOpenConfirmationMessage(hasSucceeded);
@@ -101,11 +123,13 @@ const EditPatientActivity: FunctionComponent<TProps> = ({
   };
 
   switch (activityTransitionState) {
+    case "TO_DASHBOARD":
+      return <Navigate to={`${PATHS.patients}`} replace />;
     case "TO_PATIENT":
-      return <Redirect to={`/details/${patient.data?.code}`} />;
+      return <Navigate to={`${PATHS.patients_details}/${id}`} replace />;
     default:
       return (
-        <div className="editPatient">
+        <div data-cy="edit-patient" className="editPatient">
           <AppHeader
             userCredentials={userCredentials}
             breadcrumbMap={breadcrumbMap}
@@ -117,58 +141,42 @@ const EditPatientActivity: FunctionComponent<TProps> = ({
                   patient.data?.secondName
                 }`}
               </div>
-              <PatientDataForm
-                fields={updateFields(initialFields, patient?.data)}
-                profilePicture={patient.data?.blobPhoto}
-                onSubmit={onSubmit}
-                submitButtonLabel={t("common.submit")}
-                resetButtonLabel={t("common.reset")}
-                isLoading={isLoading}
-                shouldResetForm={shouldResetForm}
-                resetFormCallback={resetFormCallback}
-              />
+              <Permission require={"patients.update"}>
+                <PatientDataForm
+                  fields={updateFields(initialFields, patient?.data)}
+                  profilePicture={patient.data?.blobPhoto}
+                  onSubmit={onSubmit}
+                  submitButtonLabel={t("common.save")}
+                  resetButtonLabel={t("common.reset")}
+                  isLoading={isLoading}
+                  shouldResetForm={shouldResetForm}
+                  resetFormCallback={resetFormCallback}
+                  mode={"edit"}
+                />
+                <div ref={infoBoxRef}>
+                  {hasFailed && <InfoBox type="error" message={errorMessage} />}
+                </div>
+                <ConfirmationDialog
+                  isOpen={openConfirmationMessage}
+                  title={t("common.titleedited")}
+                  icon={checkIcon}
+                  info={t("common.patienteditsuccessfull")}
+                  primaryButtonLabel={t("common.patient")}
+                  secondaryButtonLabel={t("common.keepediting")}
+                  handlePrimaryButtonClick={() =>
+                    setActivityTransitionState("TO_PATIENT")
+                  }
+                  handleSecondaryButtonClick={() =>
+                    setActivityTransitionState("TO_KEEP_EDITING")
+                  }
+                />
+              </Permission>
             </div>
           </div>
-          <div ref={infoBoxRef}>
-            {hasFailed && (
-              <InfoBox type="error" message={t("common.somethingwrong")} />
-            )}
-          </div>
-          <ConfirmationDialog
-            isOpen={openConfirmationMessage}
-            title={t("common.titleedited")}
-            icon={checkIcon}
-            info={t("common.patienteditsuccessfull")}
-            primaryButtonLabel={t("common.patient")}
-            secondaryButtonLabel={t("common.keepediting")}
-            handlePrimaryButtonClick={() =>
-              setActivityTransitionState("TO_PATIENT")
-            }
-            handleSecondaryButtonClick={() =>
-              setActivityTransitionState("TO_KEEP_EDITING")
-            }
-          />
           <Footer />
         </div>
       );
   }
 };
 
-const mapStateToProps = (state: IState): IStateProps => ({
-  userCredentials: state.main.authentication.data,
-  isLoading: state.patients.updatePatient.status === "LOADING",
-  hasSucceeded: state.patients.updatePatient.status === "SUCCESS",
-  hasFailed: state.patients.updatePatient.status === "FAIL",
-  patient: state.patients.selectedPatient,
-});
-
-const mapDispatchToProps: IDispatchProps = {
-  getPatientThunk,
-  updatePatientReset,
-  updatePatient,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditPatientActivity);
+export default EditPatientActivity;

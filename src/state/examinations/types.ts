@@ -1,7 +1,11 @@
 import { PatientExaminationDTO } from "../../generated";
-import { IApiResponse } from "../types";
+import { ApiResponse } from "../types";
 
 export type IExaminationsState = {
-  createExamination: IApiResponse<null>;
-  examinationsByPatientId: IApiResponse<Array<PatientExaminationDTO>>;
+  createExamination: ApiResponse<PatientExaminationDTO>;
+  updateExamination: ApiResponse<PatientExaminationDTO>;
+  getDefaultPatientExamination: ApiResponse<PatientExaminationDTO>;
+  getLastByPatientId: ApiResponse<PatientExaminationDTO>;
+  examinationsByPatientId: ApiResponse<Array<PatientExaminationDTO>>;
+  deleteExamination: ApiResponse<null>;
 };

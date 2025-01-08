@@ -1,70 +1,103 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Redirect } from "react-router";
+import { useNavigate } from "react-router";
+import { PatientDTOStatusEnum } from "../../../generated";
+import { renderDate } from "../../../libraries/formatUtils/dataFormatting";
 import { ProfilePicture } from "../../accessories/profilePicture/ProfilePicture";
 import { IPatientSearchItemProps, TActivityTransitionState } from "./types";
 
 const PatientSearchItem: FunctionComponent<IPatientSearchItemProps> = ({
   patient,
   getPatientSuccessCallback,
+  hideAdditionalInformation = false,
 }) => {
   const { t } = useTranslation();
-  const [
-    activityTransitionState,
-    setActivityTransitionState,
-  ] = useState<TActivityTransitionState>("IDLE");
+  const navigate = useNavigate();
+  const [activityTransitionState, setActivityTransitionState] =
+    useState<TActivityTransitionState>("IDLE");
 
   useEffect(() => {
     if (activityTransitionState === "TO_PATIENT_DETAILS") {
-      getPatientSuccessCallback(patient);
+      if (getPatientSuccessCallback) {
+        getPatientSuccessCallback(patient);
+      } else {
+        navigate(`/patients/details/${patient.code}`);
+      }
     }
-  }, [activityTransitionState, getPatientSuccessCallback, patient]);
+  }, [activityTransitionState, getPatientSuccessCallback, navigate, patient]);
 
-  switch (activityTransitionState) {
-    case "TO_PATIENT_DETAILS":
-      return <Redirect to={`/details/${patient.code}`} />; //TODO: use actual patient id instead
-    default:
-      return (
-        <div className="patientSearchItem center-xs col-md-4 col-sm-6 col-xs-12">
-          <div
-            className="patientSearchItem__panel"
-            onClick={() => setActivityTransitionState("TO_PATIENT_DETAILS")}
-          >
-            <div className="patientSearchItem__header">
-              <div>
+  const patientDate = renderDate(patient.birthDate ?? "");
+
+  return (
+    <div data-cy="patient-search-item" className="patientSearchItem col-xs-12">
+      <div
+        className="patientSearchItem__panel"
+        onClick={() => setActivityTransitionState("TO_PATIENT_DETAILS")}
+      >
+        <div className="patientSearchItem__profile">
+          <div className="patientSearchItem__profile__picture">
+            <ProfilePicture
+              isEditable={false}
+              preLoadedPicture={patient.blobPhoto}
+            />
+          </div>
+          <div className="patientSearchItem__profile__content">
+            <div className="patientSearchItem__profile__content__name">
+              {`${patient.firstName || ""} ${patient.secondName || ""}`}
+            </div>
+            <div className="patientSearchItem__profile__content__status">
+              {patient?.status === PatientDTOStatusEnum.I ? (
+                <div className="patientDetails_status_wrapper patientDetails_status_in">
+                  <h6>
+                    {t("patient.status")}: <span>{t("patient.instatus")}</span>
+                  </h6>
+                </div>
+              ) : (
+                <div className="patientDetails_status_wrapper patientDetails_status_out">
+                  <h6>
+                    {t("patient.status")}: <span>{t("patient.outstatus")}</span>
+                  </h6>
+                </div>
+              )}
+            </div>
+            <div className="patientSearchItem__profile__content__info">
+              <div className="patientSearchItem__profile__content__item">
                 <strong>{t("patient.patientID")}:</strong> {patient.code}
               </div>
-              <div>
-                <strong>{t("patient.opd")}:</strong> 32240321
+              <div className="patientSearchItem__profile__content__item">
+                <strong>{t("patient.sex")}:</strong> {patient.sex || "-"}
               </div>
+              {!hideAdditionalInformation && (
+                <div className="patientSearchItem__profile__content__item">
+                  <strong>{t("patient.birthdate")}:</strong> {patientDate}
+                </div>
+              )}
+              {!hideAdditionalInformation && (
+                <div className="patientSearchItem__profile__content__item">
+                  <strong>{t("patient.hasinsurance")}:</strong>{" "}
+                  {patient.hasInsurance || "-"}
+                </div>
+              )}
             </div>
-            <div className="patientSearchItem__content">
-              <div className="patientSearchItem__profile">
-                <div className="patientSearchItem__profile__name">
-                  {`${patient.firstName || ""} ${patient.secondName || ""}`}
+            <div className="patientSearchItem__profile__content__contact">
+              {!hideAdditionalInformation && (
+                <div className="patientSearchItem__profile__content__item">
+                  <strong>{t("patient.address")}:</strong>{" "}
+                  {`${patient.address || ""} ${
+                    patient.city ? " - " + patient.city : ""
+                  }`}
                 </div>
-                <div className="patientSearchItem__profile__picture">
-                  <ProfilePicture
-                    isEditable={false}
-                    preLoadedPicture={patient.blobPhoto}
-                  />
-                </div>
-                <div className="patientSearchItem__profile__admission">
-                  {t("patient.lastadmission")}: <strong>24/27/2020</strong>
-                </div>
-              </div>
-              <div className="patientSearchItem__divider" />
-              <div className="patientSearchItem__info">
-                <strong>{t("patient.reasonforvisit")}:</strong> Pneumonia
-              </div>
-              <div className="patientSearchItem__info">
-                <strong>{t("patient.treatmentmade")}:</strong> Pneumonia
+              )}
+              <div className="patientSearchItem__profile__content__item">
+                <strong>{t("patient.telephone")}:</strong>{" "}
+                {patient.telephone || "-"}
               </div>
             </div>
           </div>
         </div>
-      );
-  }
+      </div>
+    </div>
+  );
 };
 
 export default PatientSearchItem;

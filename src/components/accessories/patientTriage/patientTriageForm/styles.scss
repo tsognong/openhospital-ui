@@ -7,6 +7,10 @@
   align-items: center;
   width: 100%;
 
+  .formInsertMode{
+    margin: 0px 0px 20px;
+  }
+
   .patientTriageForm__item {
     margin: 7px 0px;
     padding: 0px 15px;
@@ -17,7 +21,7 @@
     @include susy-media($tablet_land) {
       padding: 0px 10px;
     }
-    @include susy-media($tablet_port) {
+    @include susy-media($tablet_land) {
       width: 50%;
     }
     @include susy-media($smartphone) {
